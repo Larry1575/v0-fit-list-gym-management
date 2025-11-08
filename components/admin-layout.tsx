@@ -18,9 +18,12 @@ import {
   UserCheck,
   LogOut,
   QrCode,
+  LayoutDashboard,
+  TrendingUp,
 } from "lucide-react"
 
 const navigation = [
+  { name: "Propietario", href: "/owner", icon: LayoutDashboard },
   { name: "Socios", href: "/admin", icon: Users },
   { name: "Membresías", href: "/admin/memberships", icon: CreditCard },
   { name: "Clases", href: "/admin/classes", icon: Calendar },
@@ -28,6 +31,7 @@ const navigation = [
   { name: "Pagos", href: "/admin/payments", icon: BarChart3 },
   { name: "Reportes", href: "/admin/reports", icon: BarChart3 },
   { name: "Escáner QR", href: "/admin/scanner", icon: QrCode },
+  { name: "Entrenador", href: "/trainer", icon: TrendingUp },
 ]
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
