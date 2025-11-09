@@ -1,10 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AdminLayout } from "@/components/admin-layout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from "react";
+import { useEffect } from "react";
+import { AdminLayout } from "@/components/admin-layout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -13,55 +27,68 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Plus, CreditCard, AlertTriangle, CheckCircle2, Calendar } from "lucide-react"
-import { mockMembers, mockMembershipTypes } from "@/lib/db-client"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Plus,
+  CreditCard,
+  AlertTriangle,
+  CheckCircle2,
+  Calendar,
+} from "lucide-react";
+import { mockMembershipTypes } from "@/lib/db-client";
+import type { Member } from "@/lib/types";
+import useMemberships from "@/components/admin-memberships/useMemberships";
+import MembershipStats from "@/components/admin-memberships/MembershipStats";
+import MembershipsTable from "@/components/admin-memberships/MembershipsTable";
+import NewMembershipForm from "@/components/admin-memberships/NewMembershipForm";
 
 export default function MembershipsPage() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const {
+    memberships,
+    members,
+    loading,
+    submitting,
+    error,
+    createMembership,
+    updateMembership,
+    deleteMembership,
+    renewMembership,
+  } = useMemberships();
+  // data & actions come from useMemberships
 
-  // Mock memberships data
-  const mockMemberships = [
-    {
-      id: "1",
-      member: mockMembers[0],
-      membership_type: mockMembershipTypes[1],
-      start_date: new Date().toISOString().split("T")[0],
-      end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      status: "active" as const,
-    },
-    {
-      id: "2",
-      member: mockMembers[1],
-      membership_type: mockMembershipTypes[0],
-      start_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      status: "active" as const,
-    },
-  ]
+  // using external NewMembershipForm component
 
   const getDaysRemaining = (endDate: string) => {
-    const end = new Date(endDate)
-    const now = new Date()
-    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    return diff
-  }
+    const end = new Date(endDate);
+    const now = new Date();
+    const diff = Math.ceil(
+      (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return diff;
+  };
 
   const getStatusBadge = (status: string, daysRemaining: number) => {
     if (status === "expired") {
-      return <Badge variant="destructive">Vencida</Badge>
+      return <Badge variant="destructive">Vencida</Badge>;
     }
     if (daysRemaining <= 7) {
-      return <Badge variant="destructive">Por vencer</Badge>
+      return <Badge variant="destructive">Por vencer</Badge>;
     }
     if (daysRemaining <= 15) {
-      return <Badge className="bg-yellow-500">Próxima a vencer</Badge>
+      return <Badge className="bg-yellow-500">Próxima a vencer</Badge>;
     }
-    return <Badge variant="default">Activa</Badge>
-  }
+    return <Badge variant="default">Activa</Badge>;
+  };
 
   return (
     <AdminLayout>
@@ -69,8 +96,12 @@ export default function MembershipsPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Membresías</h1>
-            <p className="text-muted-foreground">Gestiona las membresías activas y renovaciones</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Membresías
+            </h1>
+            <p className="text-muted-foreground">
+              Gestiona las membresías activas y renovaciones
+            </p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
@@ -82,138 +113,75 @@ export default function MembershipsPage() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Activar Membresía</DialogTitle>
-                <DialogDescription>Asigna una membresía a un socio</DialogDescription>
+                <DialogDescription>
+                  Asigna una membresía a un socio
+                </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label>Socio</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un socio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockMembers.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.first_name} {member.last_name} ({member.member_number})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Tipo de Membresía</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockMembershipTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.id}>
-                          {type.name} - €{type.price}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={() => setIsAddDialogOpen(false)}>Activar Membresía</Button>
-              </DialogFooter>
+              <NewMembershipForm
+                members={members}
+                types={mockMembershipTypes}
+                onCancel={() => setIsAddDialogOpen(false)}
+                onCreate={async (payload) => {
+                  try {
+                    const created = await createMembership(payload);
+                    // optional: create an associated payment for the membership activation
+                    try {
+                      const type = mockMembershipTypes.find(
+                        (t) => t.id === payload.membership_type_id
+                      );
+                      const amount = type?.price ?? 0;
+                      await fetch("/api/payments", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          member_id: payload.member_id,
+                          membership_id: created.id,
+                          amount,
+                          payment_method: "card",
+                          payment_date: payload.start_date,
+                          concept: `Pago activación ${type?.name ?? ""}`,
+                        }),
+                      });
+                    } catch (err) {
+                      // don't block membership creation if payment fails
+                      console.error(
+                        "Failed to create payment for membership",
+                        err
+                      );
+                    }
+                    setIsAddDialogOpen(false);
+                  } catch (e) {
+                    // error state handled in hook
+                  }
+                }}
+              />
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Membresías Activas</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{mockMemberships.filter((m) => m.status === "active").length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Por Vencer (7 días)</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {mockMemberships.filter((m) => getDaysRemaining(m.end_date) <= 7 && m.status === "active").length}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">€159.96</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Renovaciones</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats */}
+        <MembershipStats memberships={memberships} />
+
+        {/* NewMembershipForm component */}
 
         {/* Memberships Table */}
         <Card>
           <CardHeader>
             <CardTitle>Membresías Activas</CardTitle>
-            <CardDescription>Lista de todas las membresías vigentes</CardDescription>
+            <CardDescription>
+              Lista de todas las membresías vigentes
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Socio</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Inicio</TableHead>
-                    <TableHead>Vencimiento</TableHead>
-                    <TableHead>Días Restantes</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockMemberships.map((membership) => {
-                    const daysRemaining = getDaysRemaining(membership.end_date)
-                    return (
-                      <TableRow key={membership.id}>
-                        <TableCell className="font-medium">
-                          {membership.member.first_name} {membership.member.last_name}
-                          <div className="text-xs text-muted-foreground">{membership.member.member_number}</div>
-                        </TableCell>
-                        <TableCell>{membership.membership_type.name}</TableCell>
-                        <TableCell>{membership.start_date}</TableCell>
-                        <TableCell>{membership.end_date}</TableCell>
-                        <TableCell>
-                          <span className={daysRemaining <= 7 ? "text-destructive font-medium" : ""}>
-                            {daysRemaining} días
-                          </span>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(membership.status, daysRemaining)}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="outline" size="sm">
-                            Renovar
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+            <MembershipsTable
+              memberships={memberships}
+              members={members}
+              types={mockMembershipTypes}
+              loading={loading}
+              submitting={submitting}
+              onRenew={renewMembership}
+              onDelete={deleteMembership}
+            />
           </CardContent>
         </Card>
 
@@ -221,7 +189,9 @@ export default function MembershipsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Tipos de Membresía</CardTitle>
-            <CardDescription>Planes disponibles para los socios</CardDescription>
+            <CardDescription>
+              Planes disponibles para los socios
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -234,9 +204,14 @@ export default function MembershipsPage() {
                   <CardContent>
                     <div className="space-y-2">
                       <div className="text-3xl font-bold">€{type.price}</div>
-                      <div className="text-sm text-muted-foreground">{type.duration_days} días</div>
+                      <div className="text-sm text-muted-foreground">
+                        {type.duration_days} días
+                      </div>
                       <div className="text-sm">
-                        Clases: {type.class_limit ? `${type.class_limit}/mes` : "Ilimitadas"}
+                        Clases:{" "}
+                        {type.class_limit
+                          ? `${type.class_limit}/mes`
+                          : "Ilimitadas"}
                       </div>
                     </div>
                   </CardContent>
@@ -247,5 +222,5 @@ export default function MembershipsPage() {
         </Card>
       </div>
     </AdminLayout>
-  )
+  );
 }

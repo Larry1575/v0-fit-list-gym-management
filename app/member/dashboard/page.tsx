@@ -1,23 +1,29 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { MemberLayout } from "@/components/member-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, QrCode, TrendingUp, Clock, Award } from "lucide-react"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { MemberLayout } from "@/components/member-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, QrCode, TrendingUp, Clock, Award } from "lucide-react";
 
 export default function MemberDashboardPage() {
-  const router = useRouter()
-  const [memberData, setMemberData] = useState<any>(null)
+  const router = useRouter();
+  const [memberData, setMemberData] = useState<any>(null);
 
   useEffect(() => {
     // Verificar sesión
-    const session = localStorage.getItem("member_session")
+    const session = localStorage.getItem("member_session");
     if (!session) {
-      router.push("/member/login")
-      return
+      router.push("/member/login");
+      return;
     }
 
     // Mock data del socio
@@ -27,7 +33,9 @@ export default function MemberDashboardPage() {
       membership: {
         type: "Premium",
         status: "active",
-        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         days_remaining: 30,
       },
       stats: {
@@ -35,11 +43,11 @@ export default function MemberDashboardPage() {
         classes_attended: 8,
         total_visits: 156,
       },
-    })
-  }, [router])
+    });
+  }, [router]);
 
   if (!memberData) {
-    return null
+    return null;
   }
 
   return (
@@ -47,8 +55,12 @@ export default function MemberDashboardPage() {
       <div className="space-y-6">
         {/* Welcome Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Bienvenido, {memberData.name}</h1>
-          <p className="text-muted-foreground">Número de socio: {memberData.member_number}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Bienvenido, {memberData.name}
+          </h1>
+          <p className="text-muted-foreground">
+            Número de socio: {memberData.member_number}
+          </p>
         </div>
 
         {/* Membership Status */}
@@ -70,14 +82,20 @@ export default function MemberDashboardPage() {
                 <Calendar className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Vence el</p>
-                  <p className="font-semibold">{memberData.membership.end_date}</p>
+                  <p className="font-semibold">
+                    {memberData.membership.end_date}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Días restantes</p>
-                  <p className="font-semibold">{memberData.membership.days_remaining} días</p>
+                  <p className="text-sm text-muted-foreground">
+                    Días restantes
+                  </p>
+                  <p className="font-semibold">
+                    {memberData.membership.days_remaining} días
+                  </p>
                 </div>
               </div>
             </div>
@@ -89,31 +107,45 @@ export default function MemberDashboardPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Visitas Este Mes</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Visitas Este Mes
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{memberData.stats.visits_this_month}</div>
-              <p className="text-xs text-muted-foreground">+3 vs mes anterior</p>
+              <div className="text-2xl font-bold">
+                {memberData.stats.visits_this_month}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                +3 vs mes anterior
+              </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Clases Asistidas</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Clases Asistidas
+              </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{memberData.stats.classes_attended}</div>
+              <div className="text-2xl font-bold">
+                {memberData.stats.classes_attended}
+              </div>
               <p className="text-xs text-muted-foreground">Este mes</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Visitas</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Visitas
+              </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{memberData.stats.total_visits}</div>
+              <div className="text-2xl font-bold">
+                {memberData.stats.total_visits}
+              </div>
               <p className="text-xs text-muted-foreground">Desde el inicio</p>
             </CardContent>
           </Card>
@@ -163,10 +195,15 @@ export default function MemberDashboardPage() {
                 { date: "Ayer", time: "07:00", duration: "1h 30m" },
                 { date: "Hace 2 días", time: "19:00", duration: "2h 00m" },
               ].map((visit, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-3 last:border-0">
+                <div
+                  key={index}
+                  className="flex items-center justify-between border-b pb-3 last:border-0"
+                >
                   <div>
                     <p className="font-medium">{visit.date}</p>
-                    <p className="text-sm text-muted-foreground">Entrada: {visit.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Entrada: {visit.time}
+                    </p>
                   </div>
                   <Badge variant="secondary">{visit.duration}</Badge>
                 </div>
@@ -176,5 +213,5 @@ export default function MemberDashboardPage() {
         </Card>
       </div>
     </MemberLayout>
-  )
+  );
 }
