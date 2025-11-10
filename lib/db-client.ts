@@ -2,7 +2,7 @@
 // Este archivo se actualizará cuando se agregue la integración de Supabase
 
 export interface DatabaseClient {
-  from: (table: string) => any
+  from: (table: string) => any;
 }
 
 // Placeholder para cuando se agregue Supabase
@@ -11,14 +11,13 @@ export function getDatabase(): DatabaseClient | null {
   // const supabase = createBrowserClient(...)
   // return supabase
 
-  return null
+  return null;
 }
 
 // Funciones helper para datos mock mientras no hay DB
 export const mockMembers = [
   {
     id: "1",
-    member_number: "M001",
     first_name: "Juan",
     last_name: "Pérez",
     email: "juan.perez@email.com",
@@ -29,7 +28,6 @@ export const mockMembers = [
   },
   {
     id: "2",
-    member_number: "M002",
     first_name: "María",
     last_name: "García",
     email: "maria.garcia@email.com",
@@ -38,7 +36,7 @@ export const mockMembers = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
-]
+];
 
 export const mockMembershipTypes = [
   {
@@ -61,7 +59,7 @@ export const mockMembershipTypes = [
     is_active: true,
     created_at: new Date().toISOString(),
   },
-]
+];
 
 export const mockClasses = [
   {
@@ -112,4 +110,4 @@ export const mockClasses = [
     is_active: true,
     created_at: new Date().toISOString(),
   },
-]
+];

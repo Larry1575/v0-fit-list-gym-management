@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   CreditCard,
@@ -20,7 +20,7 @@ import {
   QrCode,
   LayoutDashboard,
   TrendingUp,
-} from "lucide-react"
+} from "lucide-react";
 
 const navigation = [
   { name: "Propietario", href: "/owner", icon: LayoutDashboard },
@@ -29,27 +29,30 @@ const navigation = [
   { name: "Clases", href: "/admin/classes", icon: Calendar },
   { name: "Asistencia", href: "/admin/attendance", icon: UserCheck },
   { name: "Pagos", href: "/admin/payments", icon: BarChart3 },
-  { name: "Reportes", href: "/admin/reports", icon: BarChart3 },
+  // { name: "Reportes", href: "/admin/reports", icon: BarChart3 },
   { name: "Escáner QR", href: "/admin/scanner", icon: QrCode },
-  { name: "Entrenador", href: "/trainer", icon: TrendingUp },
-]
+  // { name: "Entrenador", href: "/trainer", icon: TrendingUp },
+];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Sidebar */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 transform bg-card border-r border-border transition-transform duration-300 ease-in-out lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex h-full flex-col">
@@ -65,7 +68,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
@@ -74,14 +77,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon className="h-5 w-5" />
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -91,7 +94,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <Settings className="h-5 w-5" />
               Configuración
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2 text-destructive">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 text-destructive"
+            >
               <LogOut className="h-5 w-5" />
               Cerrar Sesión
             </Button>
@@ -103,7 +109,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="lg:pl-64">
         {/* Top bar */}
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
             <Menu className="h-6 w-6" />
           </Button>
           <div className="flex-1" />
@@ -119,5 +130,5 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <main className="p-4 lg:p-6">{children}</main>
       </div>
     </div>
-  )
+  );
 }
