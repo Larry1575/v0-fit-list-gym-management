@@ -66,7 +66,7 @@ export default function PaymentsTable({
                     <>
                       {payment.member.first_name} {payment.member.last_name}
                       <div className="text-xs text-muted-foreground">
-                        {payment.member.member_number}
+                        {payment.member.email || "Sin email"}
                       </div>
                     </>
                   ) : (

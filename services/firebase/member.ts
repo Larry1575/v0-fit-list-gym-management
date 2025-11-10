@@ -8,6 +8,8 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
 } from "firebase/firestore/lite";
 
 // Small wrapper service that exposes server-safe functions for Next.js API routes.
@@ -20,13 +22,34 @@ export async function getMembers(includeDeleted = false) {
   try {
     const membersCollection = collection(db, "members");
     const membersSnapshot = await getDocs(membersCollection);
-    const membersList = membersSnapshot.docs.map((d) => ({
+    let membersList = membersSnapshot.docs.map((d) => ({
       id: d.id,
       ...d.data(),
     }));
-    if (includeDeleted) return membersList;
-    // filter out soft-deleted documents
-    return membersList.filter((m) => !(m as any).deleted);
+
+    if (!includeDeleted) {
+      membersList = membersList.filter((m) => !(m as any).deleted);
+    }
+
+    // Obtener todas las membresías activas para calcular el status
+    const membershipsCollection = collection(db, "memberships");
+    const membershipsSnapshot = await getDocs(membershipsCollection);
+    const activeMemberships = membershipsSnapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((ms: any) => !ms.deleted && ms.status === "active");
+
+    // Crear un Set de member_ids que tienen membresías activas
+    const activeMemberIds = new Set(
+      activeMemberships.map((ms: any) => ms.member_id)
+    );
+
+    // Actualizar el status de cada miembro basado en sus membresías
+    membersList = membersList.map((member: any) => ({
+      ...member,
+      status: activeMemberIds.has(member.id) ? "active" : "inactive",
+    }));
+
+    return membersList;
   } catch (error) {
     // preserve message for debugging in server logs
     throw new Error("Failed to fetch members");
@@ -40,6 +63,22 @@ export async function getMemberById(id: string, includeDeleted = false) {
     if (!memberSnap.exists()) return null;
     const data = { id: memberSnap.id, ...memberSnap.data() } as any;
     if (!includeDeleted && data.deleted) return null;
+
+    // Verificar si el miembro tiene membresías activas
+    const membershipsCollection = collection(db, "memberships");
+    const q = query(
+      membershipsCollection,
+      where("member_id", "==", id),
+      where("status", "==", "active")
+    );
+    const membershipsSnapshot = await getDocs(q);
+    const activeMemberships = membershipsSnapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((ms: any) => !ms.deleted);
+
+    // Actualizar status basado en membresías activas
+    data.status = activeMemberships.length > 0 ? "active" : "inactive";
+
     return data;
   } catch (error) {
     throw new Error("Failed to fetch member");
@@ -49,8 +88,14 @@ export async function getMemberById(id: string, includeDeleted = false) {
 export async function createMember(data: Record<string, any>) {
   try {
     const membersCollection = collection(db, "members");
-    const docRef = await addDoc(membersCollection, data);
-    return { id: docRef.id, ...data };
+    // Establecer status inicial como inactive (se activará cuando tenga membresía)
+    const memberData = {
+      ...data,
+      status: "inactive",
+      created_at: new Date().toISOString(),
+    };
+    const docRef = await addDoc(membersCollection, memberData);
+    return { id: docRef.id, ...memberData };
   } catch (error) {
     throw new Error("Failed to create member");
   }

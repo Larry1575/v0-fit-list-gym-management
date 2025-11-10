@@ -53,7 +53,7 @@ export async function createPayment(data: Record<string, any>) {
         id: member.id,
         first_name: (member as any).first_name ?? null,
         last_name: (member as any).last_name ?? null,
-        member_number: (member as any).member_number ?? null,
+        email: (member as any).email ?? null,
       };
     }
 

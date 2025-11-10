@@ -66,7 +66,7 @@ export async function createAttendance(data: Record<string, any>) {
         id: member.id,
         first_name: (member as any).first_name,
         last_name: (member as any).last_name,
-        member_number: (member as any).member_number,
+        email: (member as any).email,
       };
 
       // check for active attendance for this member
